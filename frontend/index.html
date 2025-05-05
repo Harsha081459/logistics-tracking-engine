@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Logistics Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="glass-nav">
+            <div class="logo">
+                <span class="icon">🌍</span> Global Logistics
+            </div>
+            <div id="nav-actions" class="hidden">
+                <button id="logout-btn" class="btn btn-outline">Logout</button>
+            </div>
+        </nav>
+
+        <main id="main-content">
+            <!-- Landing View -->
+            <section id="view-landing" class="view active">
+                <div class="hero">
+                    <h1 class="gradient-text">Track & Ship Globally.</h1>
+                    <p>Enter your tracking number below</p>
+                    
+                    <div class="tracking-search glass-panel">
+                        <form onsubmit="app.handlePublicTracking(event)" class="flex-group">
+                            <input type="text" id="public-track-id" placeholder="Enter Tracking Number (e.g. CRG001)" required>
+                            <button type="submit" class="btn btn-primary">Track Package</button>
+                        </form>
+                    </div>
+
+                    <div id="public-tracking-result" class="timeline-container hidden mt-4 glass-panel">
+                        <!-- Timeline goes here -->
+                    </div>
+
+                    <div class="role-cards">
+                        <div class="card interactive" onclick="app.showView('view-customer-auth')">
+                            <div class="card-icon">📦</div>
+                            <h3>Customer Portal</h3>
+                            <p>Book shipments and view your logistics history</p>
+                        </div>
+                        <div class="card interactive" onclick="app.showView('view-employee')">
+                            <div class="card-icon">👨‍✈️</div>
+                            <h3>Hub Employee</h3>
+                            <p>Scan packages and update transit routes</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Auth View -->
+            <section id="view-customer-auth" class="view hidden">
+                <div class="auth-container">
+                    <div class="glass-panel form-panel">
+                        <div class="tabs">
+                            <button class="tab active" onclick="app.switchAuthTab('login')">Login</button>
+                            <button class="tab" onclick="app.switchAuthTab('register')">Register</button>
+                        </div>
+                        
+                        <div id="form-login" class="auth-form">
+                            <h2>Welcome Back</h2>
+                            <form onsubmit="app.handleCustomerLogin(event)">
+                                <div class="form-group">
+                                    <label>Customer ID</label>
+                                    <input type="text" id="login-id" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="login-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full">Access Portal</button>
+                            </form>
+                        </div>
+
+                        <div id="form-register" class="auth-form hidden">
+                            <h2>Create Account</h2>
+                            <form onsubmit="app.handleCustomerRegister(event)">
+                                <div class="form-group">
+                                    <label>Customer ID</label>
+                                    <input type="text" id="reg-id" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="reg-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="reg-email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="tel" id="reg-phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input type="text" id="reg-address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="reg-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full">Register</button>
+                            </form>
+                        </div>
+                        <button class="btn btn-text mt-4" onclick="app.showView('view-landing')">← Back</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Dashboard -->
+            <section id="view-customer-dashboard" class="view hidden">
+                <div class="dashboard-header">
+                    <h2>Customer Dashboard</h2>
+                    <p>Welcome, <span id="customer-name-display" class="highlight"></span></p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="glass-panel">
+                        <h3>Create Shipment Label</h3>
+                        <form onsubmit="app.handleBookCargo(event)">
+                            <div class="form-group">
+                                <label>Logistics Route</label>
+                                <select id="book-flight-id" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tracking Number (Auto-assigned if blank)</label>
+                                <input type="text" id="book-cargo-id">
+                            </div>
+                            <div class="flex-group">
+                                <div class="form-group" style="flex:1">
+                                    <label>Weight (kg)</label>
+                                    <input type="number" id="book-weight" min="1" step="0.1" required oninput="app.previewPrice()">
+                                </div>
+                                <div class="form-group" style="flex:1">
+                                    <label>Cargo Type</label>
+                                    <select id="book-type" required onchange="app.previewPrice()">
+                                        <option value="Standard">Standard</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Hazardous">Hazardous</option>
+                                        <option value="Perishable">Perishable</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="price-preview mb-4">
+                                Estimated Cost: <span id="price-display" class="highlight">$0.00</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">Pay & Generate Label</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-panel">
+                        <h3>Your Shipments</h3>
+                        <div id="customer-bookings-list" class="list-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Employee Console -->
+            <section id="view-employee" class="view hidden">
+                <div class="dashboard-header">
+                    <h2>Logistics Hub Console</h2>
+                    <p>Scan Packages & Update Timeline</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="glass-panel">
+                        <h3>Scan Package</h3>
+                        <div class="form-group flex-group">
+                            <input type="text" id="emp-track-id" placeholder="Scan Tracking Barcode">
+                            <button class="btn btn-secondary" onclick="app.loadEmployeeTracking()">Scan</button>
+                        </div>
+                        
+                        <div id="emp-scan-result" class="hidden mt-4 pt-4 border-t">
+                            <h4 id="emp-scan-title"></h4>
+                            <p class="text-muted mb-4" id="emp-scan-subtitle"></p>
+                            
+                            <form onsubmit="app.updateTracking(event)">
+                                <div class="form-group">
+                                    <label>New Status</label>
+                                    <select id="update-status" required>
+                                        <option value="In Transit">In Transit</option>
+                                        <option value="Arrived at Facility">Arrived at Facility</option>
+                                        <option value="Customs Clearance">Customs Clearance</option>
+                                        <option value="Out for Delivery">Out for Delivery</option>
+                                        <option value="Delivered">Delivered</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Location Hub</label>
+                                    <input type="text" id="update-location" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Remarks</label>
+                                    <input type="text" id="update-remarks" placeholder="Optional notes">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full">Apply Update</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel">
+                        <h3>Fleet Capacity</h3>
+                        <button class="btn btn-secondary mb-4" onclick="app.loadEmployeeFlights()">Refresh Network</button>
+                        <div id="employee-flights-list" class="list-container"></div>
+                    </div>
+                </div>
+                <button class="btn btn-text mt-4" onclick="app.showView('view-landing')">← Back to Home</button>
+            </section>
+        </main>
+        
+        <div id="toast" class="toast hidden">Message</div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
