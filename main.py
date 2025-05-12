@@ -5,6 +5,19 @@ from datetime import datetime
 
 def connect():
     try:
+        # 1. Connect without DB to create it if it doesn't exist
+        temp_conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="Harsha@1410",
+            autocommit=True
+        )
+        temp_cursor = temp_conn.cursor()
+        temp_cursor.execute("CREATE DATABASE IF NOT EXISTS air_cargo")
+        temp_cursor.close()
+        temp_conn.close()
+
+        # 2. Connect directly to the database
         conn = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -12,7 +25,66 @@ def connect():
             database="air_cargo",
             autocommit=False
         )
-        print("Database connection established successfully")
+        
+        # 3. Create Tables if they don't exist
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Customer (
+                CustomerID VARCHAR(10) PRIMARY KEY,
+                Name VARCHAR(100) NOT NULL,
+                Email VARCHAR(100) UNIQUE NOT NULL,
+                Phone VARCHAR(10) UNIQUE NOT NULL,
+                Address VARCHAR(255) NOT NULL
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Flight (
+                FlightID VARCHAR(10) PRIMARY KEY,
+                AirportLocation VARCHAR(100) NOT NULL,
+                Destination VARCHAR(100) NOT NULL,
+                Date DATE NOT NULL,
+                AvailableSpace FLOAT NOT NULL
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Cargo (
+                CargoID VARCHAR(20) PRIMARY KEY,
+                Weight FLOAT NOT NULL,
+                CargoType VARCHAR(50) NOT NULL,
+                TrackingStatus VARCHAR(50) NOT NULL DEFAULT 'Booked',
+                LastUpdated DATETIME NOT NULL,
+                Location VARCHAR(100) NOT NULL
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Booking (
+                BookingID VARCHAR(20) PRIMARY KEY,
+                CargoID VARCHAR(20) NOT NULL,
+                CustomerID VARCHAR(10) NOT NULL,
+                FlightID VARCHAR(10) NOT NULL,
+                BookingDate DATETIME NOT NULL,
+                BookingStatus VARCHAR(20) NOT NULL DEFAULT 'Confirmed',
+                FOREIGN KEY (CargoID) REFERENCES Cargo(CargoID) ON DELETE CASCADE,
+                FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE,
+                FOREIGN KEY (FlightID) REFERENCES Flight(FlightID) ON DELETE CASCADE
+            )
+        ''')
+        
+        # 4. Seed initial flights if the table is empty so booking works
+        cursor.execute("SELECT COUNT(*) FROM Flight")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("""
+                INSERT INTO Flight (FlightID, AirportLocation, Destination, Date, AvailableSpace) VALUES 
+                ('FL-101', 'New York (JFK)', 'London (LHR)', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 5000.0),
+                ('FL-202', 'Singapore (SIN)', 'Frankfurt (FRA)', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 10000.0),
+                ('FL-303', 'London (LHR)', 'Dubai (DXB)', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 7500.0),
+                ('FL-404', 'Los Angeles (LAX)', 'Tokyo (NRT)', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 2500.0),
+                ('FL-505', 'Frankfurt (FRA)', 'New York (JFK)', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 8000.0)
+            """)
+            conn.commit()
+            
+        cursor.close()
+        print("Database connection and validation established successfully!")
         return conn
     except mysql.connector.Error as err:
         print(f"Database connection failed: {err}")
