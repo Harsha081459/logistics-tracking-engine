@@ -1,44 +1,36 @@
-# Enterprise Supply Chain DBMS (Local CLI)
+# Air-Travel Cargo Services Database Engine 🚀
 
-A robust, terminal-based database application representing a highly normalized Enterprise Supply Chain system. This project demonstrates raw backend engineering by utilizing complex SQL queries (Joins, Aggregations, Views, Foreign Key Constraints) directly from Python.
+A robust, production-ready logistics database engine and REST API serving a normalized MySQL schema. This system tracks complex supply chain networks with strict ACID transaction management and RBAC security.
 
-## Tech Stack
-- **Database:** Local MySQL
-- **Backend / Connector:** Python (`mysql-connector-python`)
-- **UI:** Terminal CLI (`tabulate`)
+## 🏗️ Architecture
 
-## Features
-- **5-Table Normalized Schema**: Includes role-based access control, distributed warehouses (hubs), fleet mapping, and detailed package audit trails.
-- **Advanced SQL Views**: Dynamically aggregates network load across the globe using `GROUP BY` and `SUM`.
-- **Interactive Terminal Interface**: A highly responsive CLI application allowing users to track packages and view analytics seamlessly.
+- **Backend Framework**: FastAPI (Python)
+- **Database**: MySQL 8.0 (Relational Database)
+- **Deployment**: Docker & Docker Compose
+- **Security**: JWT-based Authentication
 
-## Getting Started
+## ✨ Key Features
 
-### 1. Database Setup
-Ensure you have a local MySQL server running (e.g., XAMPP, WAMP, or MySQL Workbench).
-1. Open your MySQL client.
-2. Run the provided `schema.sql` script to create the `logistics_db` database, construct the tables, and insert dummy data.
-   ```bash
-   mysql -u root -p < schema.sql
-   ```
+1. **ACID-Compliant Transactions**: Handles multi-table inserts (Cargo, Booking, Tracking History) with `conn.commit()` and `conn.rollback()` to ensure zero data corruption during logistics updates.
+2. **Referential Integrity**: Implements strict `ON DELETE CASCADE` foreign key constraints across a normalized 5-table schema.
+3. **Complex JOINs**: Real-time aggregation of cargo status, customer data, and flight manifests via normalized query mapping.
+4. **REST API**: Exposes core functionality via `/cargo` and `/shipments/{id}` endpoints.
 
-### 2. Python Setup
-1. Clone this repository.
-2. Install the required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. (Optional) Create a `.env` file in the root directory if your local MySQL requires a specific password or port:
-   ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=logistics_db
-   DB_PORT=3306
-   ```
+## 🚀 Getting Started (Docker)
 
-### 3. Run the Application
-Start the interactive terminal dashboard:
+The entire application is containerized. You can spin up both the FastAPI web server and the MySQL database with a single command:
+
 ```bash
-python main.py
+docker-compose up --build -d
 ```
+
+Once running:
+- **API Docs (Swagger UI)**: http://localhost:8000/docs
+- **API Host**: http://localhost:8000
+
+## 🔐 Authentication
+The API utilizes a Bearer token dependency for endpoints. For local testing via Swagger UI, authorize using the mock JWT token:
+`Bearer mock-jwt-admin-token-123`
+
+## 💻 Legacy CLI Tool
+The original terminal-based Python tool is preserved in `main.py` for legacy manual testing and direct database administration.

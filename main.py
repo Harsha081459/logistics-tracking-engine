@@ -1,15 +1,16 @@
 import mysql.connector
 from datetime import datetime
+import os
 
 # ====================== DATABASE CONNECTION ======================
 
 def connect():
     try:
         conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="Harsha@1410",
-            database="air_cargo",
+            host=os.getenv("DB_HOST", "localhost"),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME", "air_cargo"),
             autocommit=False
         )
         print("Database connection established successfully")

@@ -5,7 +5,7 @@ services:
     image: mysql:8.0
     container_name: aircargo_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: Harsha@1410
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
       MYSQL_DATABASE: air_cargo
     ports:
       - "3306:3306"
@@ -25,7 +25,7 @@ services:
     environment:
       - DB_HOST=db
       - DB_USER=root
-      - DB_PASSWORD=Harsha@1410
+      - DB_PASSWORD=${DB_PASSWORD:-rootpassword}
       - DB_NAME=air_cargo
     depends_on:
       db:
